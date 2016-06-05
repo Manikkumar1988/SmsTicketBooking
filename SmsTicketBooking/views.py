@@ -138,12 +138,15 @@ def sendSMS(smsContents,smsToBeSend):
     else:
         print "Message not sent! Please check your settings!"
 
-def generateRandom(request):
-    content = "{code:"+str(random.randint(1000, 9999))+"}"
+def generateRandom():
+    securitycode = str(random.randint(1000, 9999))
+    print 'value is'+ securitycode
+
+def getcode(request):
+    content = "{code:"+securitycode+"}"
     response = HttpResponse(content, content_type='application/text')
     response['Content-Length'] = len(content)
     return response;
-
 
 class SMSContents:
     success = False
@@ -165,3 +168,11 @@ class SMSContents:
 
 
 
+import time
+
+def executeSomething():
+    generateRandom()
+    time.sleep(60)
+
+while True:
+    executeSomething()
