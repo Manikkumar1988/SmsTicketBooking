@@ -9,7 +9,8 @@ from django.template.loader import get_template
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import urllib
-
+from twisted.internet import task
+from twisted.internet import reactor
 
 def index(request):
     t = get_template('home.html')
@@ -66,7 +67,7 @@ def parseIncomingMessage(request):
     else:
         smsToBeSend = generateFailureMessage()
     sendSMS(smsContents,smsToBeSend)
-    return content
+    return response
 
 
 def validateMessageBody(receivedContentsCommaSplit):
@@ -132,13 +133,16 @@ def sendSMS(smsContents,smsToBeSend):
     print '#####'
     print '#####'
 
-    if req.startswith("OK:") > 1:
+    if req.startswith("OK:"):
         print "Message successfully sent"
     else:
         print "Message not sent! Please check your settings!"
 
 def generateRandom(request):
-    return random.randint(1, 10);
+    content = "{code:"+str(random.randint(1000, 9999))+"}"
+    response = HttpResponse(content, content_type='application/text')
+    response['Content-Length'] = len(content)
+    return response;
 
 
 class SMSContents:
