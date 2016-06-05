@@ -1,21 +1,13 @@
 import random
 
-import requests
-from django.shortcuts import render
-
 from django.http import HttpResponse
-from django.template import Context, loader
-from django.template.loader import get_template
-from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import urllib
-from twisted.internet import task
-from twisted.internet import reactor
+import pickle
 
-def index(request):
-    t = get_template('home.html')
-    html = t.render(Context())
-    return HttpResponse(html)
+
+
+
 
 '''
 source=GSM+Modem+Gateway
@@ -94,6 +86,7 @@ def generateSuccesMessage(smsContents):
     print 'Inside generateSuccesMessage'
     print '#####'
     print '#####'
+
     return 'Hi '+smsContents.sender+' Your booking of is confirmed.'
 
 def generateFailureMessage():
@@ -138,11 +131,9 @@ def sendSMS(smsContents,smsToBeSend):
     else:
         print "Message not sent! Please check your settings!"
 
-def generateRandom():
-    securitycode = str(random.randint(1000, 9999))
-    print 'value is'+ securitycode
-
 def getcode(request):
+    securitycode = str(random.randint(1000, 9999))
+    saveCode(securitycode)
     content = "{code:"+securitycode+"}"
     response = HttpResponse(content, content_type='application/text')
     response['Content-Length'] = len(content)
@@ -153,7 +144,15 @@ class SMSContents:
     def __init__(self, sender, messagebody):
         self.sender = sender
         self.messagebody = messagebody
+        print '#####'
+        print  getSecurityCode()
+        print messagebody.find(getSecurityCode())
+        print '#####'
         if (sender and messagebody and messagebody.startswith("ALBT")):
+            '''
+            Add validation to check ticket count
+
+            '''
             self.success = True
         else:
             self.success = False
@@ -167,7 +166,18 @@ class SMSContents:
         print '#####'
 
 
+def saveCode(securitycode):
+    f = open('store.pckl', 'w')
+    pickle.dump(securitycode, f)
+    f.close()
 
+def getSecurityCode():
+    f = open('store.pckl')
+    securitycode = pickle.load(f)
+    f.close()
+    return securitycode
+
+'''
 import time
 
 def executeSomething():
@@ -176,3 +186,4 @@ def executeSomething():
 
 while True:
     executeSomething()
+    '''
